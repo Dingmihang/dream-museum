@@ -1,0 +1,36 @@
+<!-- 梦境大厅 - 瀑布流 -->
+<view class="search-bar">
+  <input class="search-input" placeholder="搜索梦境关键词..." value="{{keyword}}" bindinput="onSearch" bindconfirm="doSearch" />
+</view>
+
+<block wx:if="{{dreams.length > 0}}">
+  <view style="text-align:center;padding:16px">
+    <block wx:for="{{dreams}}" wx:key="id">
+      <view class="dream-card" bindtap="goDetail" data-id="{{item.id}}">
+        <image class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" lazy-load />
+        <view class="dream-card-title">{{item.dream_title}}</view>
+        <view class="dream-card-tags">
+          <block wx:for="{{item.dream_tags}}" wx:key="*this" wx:for-item="tag">
+            <text class="dream-card-tag">{{tag}}</text>
+          </block>
+        </view>
+        <view class="dream-card-footer">
+          <text class="dream-card-author">{{item.nickname || '梦行者'}}</text>
+          <text class="dream-card-like" catchtap="onLike" data-id="{{item.id}}">❤️ {{item.like_count}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</block>
+
+<block wx:elif="{{loading}}">
+  <view class="loading-wrap"><text class="loading-text">梦境加载中...</text></view>
+</block>
+
+<block wx:else>
+  <view class="empty-wrap"><text class="empty-text">🌙 还没有公开的梦境<br/>去创造一个吧</text></view>
+</block>
+
+<view wx:if="{{hasMore}}" style="text-align:center;padding:16px">
+  <text class="btn-outline" bindtap="loadMore">加载更多</text>
+</view>

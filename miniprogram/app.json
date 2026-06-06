@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/create/create",
+    "pages/mine/mine",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#0a0a1a",
+    "navigationBarTitleText": "梦境博物馆",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#666680",
+    "selectedColor": "#8b7cfc",
+    "backgroundColor": "#0f0f24",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "梦境大厅",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/create/create",
+        "text": "创造梦境",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "",
+        "selectedIconPath": ""
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

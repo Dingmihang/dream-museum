@@ -1,0 +1,338 @@
+/* 梦境博物馆 - 全局样式 */
+/* 设计：梦境紫/深色氛围，传统布局 */
+
+page {
+  background-color: #0a0a1a;
+  color: #d0d0e0;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ========== 文本 ========== */
+.title-lg {
+  font-size: 22px;
+  font-weight: bold;
+  color: #e8e8ff;
+  text-align: center;
+  padding: 20px 0 10px;
+}
+.title-md {
+  font-size: 17px;
+  font-weight: bold;
+  color: #d0d0ff;
+  padding: 15px 16px 8px;
+}
+.text-body {
+  font-size: 14px;
+  color: #a0a0c0;
+  line-height: 1.6;
+}
+.text-sm {
+  font-size: 12px;
+  color: #707090;
+}
+.text-accent {
+  color: #8b7cfc;
+}
+
+/* ========== 按钮 ========== */
+.btn-primary {
+  display: inline-block;
+  background: #6b5cfc;
+  color: #fff;
+  font-size: 16px;
+  padding: 12px 32px;
+  border-radius: 24px;
+  text-align: center;
+  margin: 8px auto;
+}
+.btn-outline {
+  display: inline-block;
+  background: transparent;
+  color: #8b7cfc;
+  font-size: 14px;
+  padding: 8px 20px;
+  border: 1px solid #3a3a60;
+  border-radius: 20px;
+  text-align: center;
+  margin: 4px auto;
+}
+.btn-ad {
+  display: inline-block;
+  background: linear-gradient(135deg, #ff6b35, #f7c948);
+  color: #fff;
+  font-size: 15px;
+  padding: 10px 28px;
+  border-radius: 24px;
+  text-align: center;
+}
+
+/* ========== 卡片 ========== */
+.card {
+  background: #12122a;
+  border: 1px solid #1e1e3a;
+  border-radius: 12px;
+  margin: 8px 12px;
+  overflow: hidden;
+}
+
+/* ========== 梦境瀑布流卡片 ========== */
+.dream-card {
+  display: inline-block;
+  width: 46%;
+  background: #12122a;
+  border: 1px solid #1e1e3a;
+  border-radius: 12px;
+  margin: 6px 2%;
+  overflow: hidden;
+  vertical-align: top;
+}
+.dream-card-image {
+  width: 100%;
+  height: 200px;
+  background: #1a1a3a;
+  display: block;
+}
+.dream-card-title {
+  font-size: 14px;
+  color: #d0d0ff;
+  padding: 8px 10px 2px;
+  font-weight: bold;
+}
+.dream-card-tags {
+  padding: 2px 10px 4px;
+}
+.dream-card-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: #7b6cf0;
+  background: #1a1a40;
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin: 2px 4px 2px 0;
+}
+.dream-card-footer {
+  padding: 4px 10px 8px;
+}
+.dream-card-author {
+  font-size: 12px;
+  color: #606080;
+}
+.dream-card-like {
+  font-size: 12px;
+  color: #ff6b8a;
+  float: right;
+}
+
+/* ========== 加载中 ========== */
+.loading-wrap {
+  text-align: center;
+  padding: 40px;
+}
+.loading-text {
+  font-size: 14px;
+  color: #606080;
+  margin-top: 10px;
+}
+
+/* ========== 空状态 ========== */
+.empty-wrap {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-text {
+  font-size: 15px;
+  color: #505070;
+  margin-top: 12px;
+}
+
+/* ========== 输入框 ========== */
+.input-area {
+  display: block;
+  width: 88%;
+  background: #12122a;
+  border: 1px solid #2a2a50;
+  border-radius: 12px;
+  color: #d0d0e0;
+  font-size: 15px;
+  padding: 14px;
+  margin: 10px auto;
+  box-sizing: border-box;
+}
+
+/* ========== 分隔线 ========== */
+.divider {
+  border-top: 1px solid #1e1e3a;
+  margin: 12px 0;
+}
+
+/* ========== 我的页面 ========== */
+.profile-header {
+  text-align: center;
+  padding: 30px 20px;
+  background: #0d0d22;
+}
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #2a2a50;
+  margin: 0 auto 12px;
+  display: block;
+}
+.profile-name {
+  font-size: 18px;
+  color: #e0e0ff;
+  font-weight: bold;
+}
+.quota-row {
+  text-align: center;
+  padding: 16px;
+}
+.quota-item {
+  display: inline-block;
+  width: 45%;
+  padding: 12px 0;
+}
+.quota-num {
+  font-size: 28px;
+  color: #8b7cfc;
+  font-weight: bold;
+}
+.quota-label {
+  font-size: 12px;
+  color: #606080;
+  margin-top: 4px;
+}
+
+/* ========== 生成页 ========== */
+.create-wrap {
+  padding: 16px;
+}
+.style-row {
+  text-align: center;
+  padding: 8px 0;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.style-chip {
+  display: inline-block;
+  background: #1a1a3a;
+  color: #8080b0;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  margin: 4px 6px;
+  border: 1px solid #2a2a50;
+}
+.style-chip.active {
+  background: #2a1a50;
+  color: #8b7cfc;
+  border-color: #6b5cfc;
+}
+.generate-result {
+  text-align: center;
+  padding: 20px;
+}
+.generate-image {
+  width: 90%;
+  border-radius: 12px;
+  margin: 10px auto;
+  display: block;
+}
+.generate-title {
+  font-size: 20px;
+  color: #e0e0ff;
+  margin: 12px 0;
+  font-weight: bold;
+}
+.generate-analysis {
+  font-size: 14px;
+  color: #a0a0c0;
+  line-height: 1.8;
+  text-align: left;
+  padding: 12px 16px;
+  background: #12122a;
+  border-radius: 10px;
+  margin: 10px auto;
+  width: 88%;
+}
+.generate-tags {
+  text-align: center;
+  padding: 8px;
+}
+
+/* ========== 进度条 ========== */
+.progress-wrap {
+  text-align: center;
+  padding: 30px;
+}
+.progress-text {
+  font-size: 14px;
+  color: #8b7cfc;
+  margin-top: 8px;
+}
+
+/* ========== 搜索 ========== */
+.search-bar {
+  padding: 10px 16px;
+  text-align: center;
+}
+.search-input {
+  display: inline-block;
+  width: 70%;
+  background: #12122a;
+  border: 1px solid #2a2a50;
+  border-radius: 20px;
+  color: #a0a0c0;
+  font-size: 14px;
+  padding: 8px 16px;
+}
+
+/* ========== 详情页 ========== */
+.detail-image {
+  width: 100%;
+  display: block;
+}
+.detail-info {
+  padding: 16px;
+}
+.detail-title {
+  font-size: 22px;
+  color: #e0e0ff;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.detail-author {
+  font-size: 14px;
+  color: #707090;
+  margin-bottom: 12px;
+}
+.detail-analysis {
+  font-size: 15px;
+  color: #b0b0d0;
+  line-height: 1.8;
+  margin: 12px 0;
+}
+.detail-actions {
+  text-align: center;
+  padding: 16px;
+}
+.action-btn {
+  display: inline-block;
+  background: #12122a;
+  border: 1px solid #2a2a50;
+  border-radius: 20px;
+  color: #a0a0c0;
+  font-size: 14px;
+  padding: 8px 24px;
+  margin: 0 8px;
+}
+.action-btn.liked {
+  color: #ff6b8a;
+  border-color: #ff6b8a;
+}
+.action-btn.faved {
+  color: #f7c948;
+  border-color: #f7c948;
+}
