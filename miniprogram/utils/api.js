@@ -1,6 +1,5 @@
 // 梦境博物馆 - API 封装
-//const BASE = 'https://dream-museum.onrender.com'
-const BASE = 'http://127.0.0.1:8090'
+const BASE = 'https://dream-museum.onrender.com'
 
 function request(path, method, data) {
   return new Promise((resolve, reject) => {

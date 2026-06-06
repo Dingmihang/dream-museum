@@ -26,7 +26,12 @@ RATE_LIMIT_WINDOW = 10  # 频率限制窗口(秒)
 MAX_REQUESTS_PER_WINDOW = 5
 
 # ---- AI Clients ----
-deepseek = OpenAI(api_key=DEEPSEEK_KEY, base_url="https://api.deepseek.com/v1")
+_deepseek = None
+def get_deepseek():
+    global _deepseek
+    if _deepseek is None:
+        _deepseek = OpenAI(api_key=DEEPSEEK_KEY or "sk-placeholder", base_url="https://api.deepseek.com/v1")
+    return _deepseek
 
 # ---- DB ----
 @contextmanager
@@ -256,7 +261,7 @@ async def dream_create(req: CreateDreamReq, request: Request):
 }}"""
 
     try:
-        resp = deepseek.chat.completions.create(
+        resp = get_deepseek().chat.completions.create(
             model="deepseek-chat",
             messages=[{"role": "user", "content": text_prompt}],
             temperature=0.9, max_tokens=500,
