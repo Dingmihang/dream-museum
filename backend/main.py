@@ -15,7 +15,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = f"{BASE}/dream_museum.db"
 
 # ---- 配置 ----
-WECHAT_APPID = os.getenv("WECHAT_APPID", "wx52c179fde7fe2e0a")
+WECHAT_APPID = os.getenv("WECHAT_APPID", "wx683a3933492a97b1")
 WECHAT_SECRET = os.getenv("WECHAT_SECRET", "")
 REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN", "")
 DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY", "")

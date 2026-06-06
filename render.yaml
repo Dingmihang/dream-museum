@@ -7,7 +7,7 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: WECHAT_APPID
-        value: wx52c179fde7fe2e0a
+        value: wx683a3933492a97b1
       - key: WECHAT_SECRET
         sync: false
       - key: DEEPSEEK_API_KEY
