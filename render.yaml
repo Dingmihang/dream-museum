@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: dream-museum
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: WECHAT_APPID
+        value: wx52c179fde7fe2e0a
+      - key: WECHAT_SECRET
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: REPLICATE_TOKEN
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
