@@ -15,6 +15,17 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = f"{BASE}/dream_museum.db"
 
 # ---- 配置 ----
+# 尝试从 ~/.hermes/.env 加载（本地开发用）
+_env_file = os.path.expanduser("~/.hermes/.env")
+if os.path.exists(_env_file):
+    with open(_env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                if k not in os.environ:
+                    os.environ[k] = v
+
 WECHAT_APPID = os.getenv("WECHAT_APPID", "wx683a3933492a97b1")
 WECHAT_SECRET = os.getenv("WECHAT_SECRET", "")
 REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN", "")
@@ -120,13 +131,12 @@ def make_token(uid: int) -> str:
 def verify_token(token: str) -> int:
     try:
         parts = token.split(":")
-        if len(parts) != 4:
+        if len(parts) != 3:
             raise ValueError
-        uid, ts, sig = int(parts[0]), int(parts[1]), parts[2]+":"+parts[3]
+        uid, ts, sig = int(parts[0]), int(parts[1]), parts[2]
         expected = hashlib.sha256(f"{uid}:{ts}:{JWT_SECRET}".encode()).hexdigest()[:16]
         if sig != expected:
             raise ValueError
-        # 7天过期
         if time.time() - ts > 7 * 86400:
             raise ValueError
         return uid
@@ -281,15 +291,15 @@ async def dream_create(req: CreateDreamReq, request: Request):
 
     # Step 3: 保存
     with db() as c:
-        c.execute("""INSERT INTO dream (user_id, prompt, style, dream_title, dream_analysis, dream_tags, image_url, is_public)
+        cur = c.execute("""INSERT INTO dream (user_id, prompt, style, dream_title, dream_analysis, dream_tags, image_url, is_public)
                      VALUES (?,?,?,?,?,?,?,?)""",
                   (uid, req.prompt, req.style,
                    text_result["dream_title"],
                    text_result["dream_analysis"],
                    json.dumps(text_result["dream_tags"], ensure_ascii=False),
                    image_url, 1 if req.is_public else 0))
-        dream_id = c.lastrowid
-        c.execute("INSERT INTO generate_log (user_id, consume_type) VALUES (?,?)", (uid, consume_type))
+        dream_id = cur.lastrowid
+        cur.execute("INSERT INTO generate_log (user_id, consume_type) VALUES (?,?)", (uid, consume_type))
 
     # 重新查用户余额
     with db() as c:
@@ -357,15 +367,17 @@ async def asyncio_sleep(s):
 @app.get("/api/dream/list")
 async def dream_list(page: int = 1, size: int = 20, keyword: str = ""):
     with db() as c:
-        base = "FROM dream WHERE is_public=1"
+        where = "WHERE d.is_public=1"
         params = []
         if keyword:
-            base += " AND (dream_tags LIKE ? OR dream_title LIKE ? OR prompt LIKE ?)"
+            where += " AND (d.dream_tags LIKE ? OR d.dream_title LIKE ? OR d.prompt LIKE ?)"
             kw = f"%{keyword}%"
             params = [kw, kw, kw]
-        total = c.execute(f"SELECT COUNT(*) {base}", params).fetchone()[0]
-        rows = c.execute(f"SELECT d.*, u.nickname, u.avatar {base.replace('FROM','FROM')} "
-                         f"JOIN user u ON d.user_id=u.id ORDER BY d.id DESC LIMIT ? OFFSET ?",
+        base_from = "FROM dream d"
+        total = c.execute(f"SELECT COUNT(*) {base_from} {where}", params).fetchone()[0]
+        rows = c.execute(f"SELECT d.*, u.nickname, u.avatar {base_from} "
+                         f"JOIN user u ON d.user_id=u.id {where} "
+                         f"ORDER BY d.id DESC LIMIT ? OFFSET ?",
                          params + [size, (page-1)*size]).fetchall()
     return {
         "code": 200,
