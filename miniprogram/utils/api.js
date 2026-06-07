@@ -40,12 +40,12 @@ function fixImageUrls(obj) {
   const o = {}
   for (const key of Object.keys(obj)) {
     const val = obj[key]
-    if (key === 'image_url' && val && val.startsWith('http')) {
-      // 提取 dream id，替换为代理 URL
-      if (obj.id) {
+    if (key === 'image_url' && obj.id) {
+      // 所有图片统一走代理（含空URL，代理会返回占位图）
+      if (!val || val.startsWith('http')) {
         o[key] = BASE + '/api/image/' + obj.id
       } else {
-        o[key] = val
+        o[key] = val  // 已是代理 URL，不改
       }
     } else if (typeof val === 'object') {
       o[key] = fixImageUrls(val)

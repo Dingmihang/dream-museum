@@ -136,7 +136,7 @@ _seed_data = [
 
 with db() as c:
     count = c.execute("SELECT COUNT(*) FROM dream WHERE is_public=1").fetchone()[0]
-    if count == 0:
+    if count < len(_seed_data):
         for nick, title, style, analysis, tags_str in _seed_data:
             # 创建用户
             import hashlib
