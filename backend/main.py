@@ -135,6 +135,9 @@ _seed_data = [
 ]
 
 with db() as c:
+    # 清理旧的种子数据（标签格式可能错误）
+    c.execute("DELETE FROM dream WHERE user_id IN (SELECT id FROM user WHERE openid LIKE 'seed_%')")
+    c.execute("DELETE FROM user WHERE openid LIKE 'seed_%'")
     count = c.execute("SELECT COUNT(*) FROM dream WHERE is_public=1").fetchone()[0]
     if count < len(_seed_data):
         for nick, title, style, analysis, tags_str in _seed_data:
