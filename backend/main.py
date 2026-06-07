@@ -115,6 +115,40 @@ init_db()
 with db() as c:
     c.execute("UPDATE user SET free_count = 3 WHERE free_count < 3")
 
+# 启动时自动填充模拟梦境（防止Render部署清空数据）
+_seed_data = [
+    ("晚风轻拂", "樱花岛上的透明鹿", "治愈梦境", "一只有透明翅膀的鹿在漂浮的樱花岛上轻轻起舞，每一步都落下星光。这是你心底对纯粹美好的渴望，像风一样自由而轻盈。", "轻盈,自由,美好,樱花"),
+    ("月亮邮递员", "城市上空的水母", "怪核", "巨大的发光水母在城市上空缓慢游动，街道空无一人。潜意识里对未知的敬畏与好奇交织，仿佛世界被重新定义。", "神秘,超现实,孤独,探索"),
+    ("星河旅人", "向日葵田的回忆", "童年梦境", "外婆家的后院变成了无边无际的向日葵田，金色的光芒洒满童年。那是你记忆深处最温暖的避风港。", "童年,温暖,回忆,金色"),
+    ("旧梦拾荒者", "月光莲花海", "梦核", "月光下的海面开满了发光的莲花，每朵莲花里都藏着一个被遗忘的梦。你正在拾回那些散落的自己。", "月光,莲花,遗忘,拾回"),
+    ("风居住的街道", "废弃钟楼的金树", "怪核", "无人知晓的钟楼上长出了一棵金色的树，树叶是时间的碎片。有些东西被遗忘，却在寂静中重生。", "时间,重生,寂静,金色"),
+    ("贩卖日落", "白鸟飞过彩虹桥", "治愈梦境", "你骑着巨大的白鸟飞越彩虹桥，云端有温柔的光。内心渴望突破现实边界，飞向更广阔的天空。", "自由,飞翔,彩虹,治愈"),
+    ("深海里的星星", "雪地上的月光脚印", "梦核", "白色的雪地上留下一串发光的脚印，一直延伸到月亮。你在追寻某个重要的人，还是追寻另一个自己？", "追寻,月光,雪地,自己"),
+    ("雾中行舟", "发光纸船的愿望", "治愈梦境", "小溪里游着发光的纸船，每只都装着一个未说出口的愿望。它们正缓缓驶向心愿实现的彼岸。", "愿望,纸船,小溪,希望"),
+    ("云朵收藏家", "面包店的小精灵", "童年梦境", "深夜的面包店里，小精灵们在偷偷烤明天的面包。每个面包里都藏着一个甜甜的梦。", "精灵,面包,童年,甜蜜"),
+    ("夏日终曲", "楼顶连成的草原", "梦核", "城市所有楼顶连成一片无尽的草原，风吹过像海浪。你在钢筋森林里找到了属于自己的旷野。", "草原,城市,旷野,自由"),
+    ("雨夜的猫", "烟斗里的银河", "怪核", "老爷爷的烟斗里飘出整个银河，星星点点洒满房间。有些梦想像烟一样轻，却比银河还浩瀚。", "银河,梦想,轻盈,浩瀚"),
+    ("海底两万里", "落叶变成的金鱼", "童年梦境", "秋天的落叶没有飘落，而是变成金色的鱼群游向天空。童年相信一切皆有可能。", "秋天,金鱼,落叶,童年"),
+    ("森之精灵", "石板路的星河", "梦核", "老街的石板路在月光下变成了一条星河，你踩过的每一步都溅起星光。平凡的日常也能变成魔法。", "老街,月光,星河,魔法"),
+    ("火车慢驶", "云层上的旋转木马", "治愈梦境", "旋转木马转到了云层之上，上面坐着各种可爱的动物。成年后的你，依然需要片刻的旋转与欢笑。", "旋转木马,云端,欢乐,童真"),
+    ("南方有乔木", "会说话的猫咪", "童年梦境", "猫咪悄悄告诉你，它去过最远的地方是月亮。有些陪伴看似微不足道，却是通往宇宙的入口。", "猫咪,月亮,陪伴,秘密"),
+]
+
+with db() as c:
+    count = c.execute("SELECT COUNT(*) FROM dream WHERE is_public=1").fetchone()[0]
+    if count == 0:
+        for nick, title, style, analysis, tags_str in _seed_data:
+            # 创建用户
+            import hashlib
+            openid = f"seed_{hashlib.md5(nick.encode()).hexdigest()[:8]}"
+            c.execute("INSERT OR IGNORE INTO user (openid, nickname, free_count) VALUES (?,?,3)", (openid, nick))
+            user = c.execute("SELECT id FROM user WHERE openid=?", (openid,)).fetchone()
+            if user:
+                uid = user["id"]
+                c.execute("""INSERT INTO dream (user_id, prompt, style, dream_title, dream_analysis, dream_tags, image_url, is_public)
+                             VALUES (?,?,?,?,?,?,?,?)""",
+                          (uid, title, style, title, analysis, tags_str, "", 1))
+
 # ---- Rate Limiter ----
 _rate_map = {}
 def check_rate(user_id: int):
@@ -555,23 +589,41 @@ async def ad_callback(request: Request):
 @app.get("/api/image/{dream_id}")
 async def image_proxy(dream_id: int):
     import aiohttp
-    with db() as c:
-        d = c.execute("SELECT image_url FROM dream WHERE id=?", (dream_id,)).fetchone()
-    if not d or not d["image_url"]:
-        # 返回占位图
-        return JSONResponse({"code": 404, "message": "图片不存在"}, status_code=404)
+    from fastapi.responses import Response
     
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(d["image_url"], timeout=15) as resp:
-                if resp.status == 200:
-                    content = await resp.read()
-                    ct = resp.headers.get("Content-Type", "image/png")
-                    from fastapi.responses import Response
-                    return Response(content=content, media_type=ct)
-    except:
-        pass
-    return JSONResponse({"code": 404, "message": "图片加载失败"}, status_code=404)
+    with db() as c:
+        d = c.execute("SELECT image_url, style FROM dream WHERE id=?", (dream_id,)).fetchone()
+    
+    if d and d["image_url"]:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(d["image_url"], timeout=15) as resp:
+                    if resp.status == 200:
+                        content = await resp.read()
+                        ct = resp.headers.get("Content-Type", "image/png")
+                        return Response(content=content, media_type=ct)
+        except:
+            pass
+    
+    # 占位图：柔和渐变 + 梦境文字
+    style_colors = {
+        "梦核": ("#D4C5E2", "#A89BC9"),
+        "怪核": ("#C5D5E2", "#8BA5C4"),
+        "童年梦境": ("#FAE8C8", "#F0D098"),
+        "治愈梦境": ("#C8E8D4", "#90C8A8"),
+        "赛博梦境": ("#C8D8F0", "#8090D0"),
+    }
+    bg1, bg2 = style_colors.get(d["style"] if d else "梦核", ("#EDE8E0", "#D4C4A8"))
+    
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340">
+      <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:{bg1}"/><stop offset="100%" style="stop-color:{bg2}"/>
+      </linearGradient></defs>
+      <rect width="600" height="340" fill="url(#g)" rx="16"/>
+      <text x="300" y="160" text-anchor="middle" font-size="64" fill="white" opacity="0.6">🌙</text>
+      <text x="300" y="210" text-anchor="middle" font-size="16" fill="white" opacity="0.5">梦境博物馆</text>
+    </svg>'''
+    return Response(content=svg.encode(), media_type="image/svg+xml")
 
 # ---- 删除梦境 ----
 @app.post("/api/dream/delete")
