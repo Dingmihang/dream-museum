@@ -32,7 +32,7 @@ REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN", "")
 SILICONFLOW_KEY = os.getenv("SILICONFLOW_KEY", "sk-elm...zzma")
 DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_hex(32))
-DAILY_FREE = 1          # 每日免费次数
+DAILY_FREE = 3          # 每日免费次数
 MAX_AD_PER_DAY = 20     # 每日广告上限
 RATE_LIMIT_WINDOW = 10  # 频率限制窗口(秒)
 MAX_REQUESTS_PER_WINDOW = 5
@@ -457,6 +457,28 @@ async def user_profile(request: Request):
             "daily_free": DAILY_FREE,
             "daily_ad_max": MAX_AD_PER_DAY,
             "daily_ad_used": u["daily_ad_count"]
+        }
+    }
+
+# ---- 更新个人资料 ----
+class UpdateProfileReq(BaseModel):
+    nickname: str = ""
+    avatar: str = ""
+
+@app.post("/api/user/update")
+async def user_update(req: UpdateProfileReq, request: Request):
+    uid, _ = get_user(request)
+    with db() as c:
+        if req.nickname and len(req.nickname.strip()) <= 20:
+            c.execute("UPDATE user SET nickname=? WHERE id=?", (req.nickname.strip(), uid))
+        if req.avatar and len(req.avatar) <= 500:
+            c.execute("UPDATE user SET avatar=? WHERE id=?", (req.avatar, uid))
+        u = dict(c.execute("SELECT * FROM user WHERE id=?", (uid,)).fetchone())
+    return {
+        "code": 200,
+        "user": {
+            "nickname": u["nickname"],
+            "avatar": u["avatar"],
         }
     }
 

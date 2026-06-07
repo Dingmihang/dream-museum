@@ -3,6 +3,7 @@ const api = require('../../utils/api')
 Page({
   data: {
     dreams: [],
+    allDreams: [],  // store all dreams for shuffling
     page: 1,
     hasMore: true,
     loading: true,
@@ -17,17 +18,15 @@ Page({
 
   onShow() {
     this.loadProfile()
-    // 从创造页返回时刷新
     if (this.data.page === 1 && this.data.dreams.length > 0) {
-      this.setData({ page: 1, dreams: [], hasMore: true })
+      this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true })
       this.loadDreams()
     }
   },
 
   onPullDownRefresh() {
-    this.setData({ page: 1, dreams: [], hasMore: true })
+    this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true })
     this.loadDreams()
-    wx.stopPullDownRefresh()
   },
 
   loadProfile() {
@@ -39,26 +38,43 @@ Page({
   loadDreams() {
     if (!this.data.hasMore) return
     this.setData({ loading: true })
-    api.getDreamList(this.data.page, this.data.keyword).then(res => {
-      const dreams = res.data.map(d => ({
+
+    // Load all available pages for shuffling
+    api.getDreamList(1, this.data.keyword).then(res => {
+      const all = res.data.map(d => ({
         ...d,
         dream_tags: typeof d.dream_tags === 'string' ? JSON.parse(d.dream_tags || '[]') : (d.dream_tags || [])
       }))
+      
+      // Shuffle for variety
+      const shuffled = this._shuffle([...all])
+      
       this.setData({
-        dreams: this.data.page === 1 ? dreams : this.data.dreams.concat(dreams),
-        hasMore: res.has_more,
+        dreams: shuffled,
+        allDreams: all,
+        hasMore: false,  // single page is enough
         loading: false
       })
+      wx.stopPullDownRefresh && wx.stopPullDownRefresh()
     }).catch(() => {
       this.setData({ loading: false })
+      wx.stopPullDownRefresh && wx.stopPullDownRefresh()
     })
   },
 
+  _shuffle(arr) {
+    const a = [...arr]
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const t = a[i]; a[i] = a[j]; a[j] = t
+    }
+    return a
+  },
+
   loadMore() {
-    if (!this.data.hasMore) return
-    this.setData({ page: this.data.page + 1 }, () => {
-      this.loadDreams()
-    })
+    // Reshuffle on load more
+    const reshuffled = this._shuffle([...this.data.allDreams])
+    this.setData({ dreams: reshuffled })
   },
 
   onSearch(e) {
@@ -66,7 +82,7 @@ Page({
   },
 
   doSearch() {
-    this.setData({ page: 1, dreams: [], hasMore: true })
+    this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true })
     this.loadDreams()
   },
 

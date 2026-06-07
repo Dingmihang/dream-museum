@@ -1,5 +1,4 @@
-<!-- 创造梦境 — 温暖治愈风 -->
-
+<!-- 创造梦境 -->
 <block wx:if="{{!generated && !generating}}">
   <view class="create-wrap">
     <view class="title-md">🌙 描述你的梦境</view>
@@ -19,7 +18,7 @@
         {{generating ? '生成中...' : '✨ 生成梦境'}}
       </button>
       <view style="margin-top:12px">
-        <text class="text-sm">今日免费：{{quota.free_count}}/1 · 额度：{{quota.credit_count}}</text>
+        <text class="text-sm">今日剩余 {{quota.free_count}}/{{quota.daily_free}} 次</text>
       </view>
     </view>
   </view>
@@ -56,14 +55,14 @@
   </view>
 </block>
 
-<!-- 无额度弹窗 -->
-<view wx:if="{{showAdModal}}" class="modal-mask" bindtap="closeAdModal">
-  <view class="modal-box" catchtap="">
-    <view class="modal-title">今日免费次数已用完</view>
-    <view class="modal-desc">观看广告可获得 1 次梦境生成机会</view>
-    <button class="btn-ad" bindtap="watchAd" style="display:inline-block;width:auto;padding:12px 32px">📺 观看广告获得次数</button>
+<!-- 广告弹窗（次数用完自动弹出） -->
+<view wx:if="{{showAdModal}}" class="modal-mask">
+  <view class="modal-box">
+    <view class="modal-title">🌟 今日次数已用完</view>
+    <view class="modal-desc">观看广告即可获得一次梦境生成机会</view>
+    <button class="btn-ad" bindtap="watchAd" style="display:inline-block;width:auto;padding:12px 32px">📺 观看广告 +1 次</button>
     <view style="margin-top:16px">
-      <text style="color:#B0A090;font-size:13px" bindtap="closeAdModal">取消</text>
+      <text style="color:#B0A090;font-size:13px" bindtap="closeAdModal">下次再说</text>
     </view>
   </view>
 </view>

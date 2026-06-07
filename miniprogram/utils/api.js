@@ -38,9 +38,7 @@ module.exports = {
 
   createDream(prompt, style, isPublic) {
     return request('/api/dream/create', 'POST', {
-      prompt: prompt,
-      style: style || '梦核',
-      is_public: isPublic || false
+      prompt: prompt, style: style || '梦核', is_public: isPublic || false
     })
   },
 
@@ -76,6 +74,10 @@ module.exports = {
 
   getUserProfile() {
     return request('/api/user/profile', 'GET')
+  },
+
+  updateProfile(nickname, avatar) {
+    return request('/api/user/update', 'POST', { nickname: nickname || '', avatar: avatar || '' })
   },
 
   getUserDreams(page) {

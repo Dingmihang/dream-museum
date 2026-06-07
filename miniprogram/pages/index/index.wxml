@@ -52,10 +52,9 @@
   </view>
 </block>
 
-<view wx:if="{{hasMore}}" style="text-align:center;padding:16px 0 40px">
-  <text class="btn-outline" bindtap="loadMore">加载更多</text>
-</view>
-
-<view wx:else style="text-align:center;padding:8px 0 40px">
-  <text style="font-size:12px;color:#D4C4A8">— 已经到底啦 —</text>
+<view wx:if="{{hasMore || dreams.length > 0}}" style="text-align:center;padding:16px 0 40px">
+  <text class="btn-outline" bindtap="loadMore">🔄 换一批</text>
+  <view style="margin-top:8px">
+    <text class="text-sm">下拉刷新看不同的梦境排列</text>
+  </view>
 </view>

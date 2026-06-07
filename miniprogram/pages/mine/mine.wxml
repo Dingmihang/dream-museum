@@ -1,7 +1,11 @@
-<!-- 我的 — 温暖治愈风 -->
+<!-- 我的 — 可编辑头像和昵称 -->
 <view class="profile-header">
-  <image class="profile-avatar" src="{{user.avatar || '/assets/default-avatar.png'}}" mode="aspectFill" />
-  <view class="profile-name">{{user.nickname || '梦行者'}}</view>
+  <button class="profile-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+    <image class="profile-avatar" src="{{user.avatar || '/assets/default-avatar.png'}}" mode="aspectFill" />
+  </button>
+  <view style="text-align:center;margin-top:10px">
+    <input class="nickname-input" type="nickname" placeholder="点击设置昵称" value="{{editName}}" bindinput="onNameInput" bindblur="saveNickname" maxlength="20" />
+  </view>
 </view>
 
 <view class="quota-row">
@@ -10,13 +14,9 @@
     <view class="quota-label">今日免费次数</view>
   </view>
   <view class="quota-item">
-    <view class="quota-num">{{user.credit_count}}</view>
-    <view class="quota-label">广告额度</view>
+    <view class="quota-num">{{dreamCount}}</view>
+    <view class="quota-label">我的梦境</view>
   </view>
-</view>
-
-<view style="text-align:center;padding:4px 0 12px">
-  <button class="btn-ad" bindtap="watchAd" style="display:inline-block;width:auto;font-size:14px;padding:8px 20px">📺 观看广告 +1 次数</button>
 </view>
 
 <view class="tab-row">
@@ -36,7 +36,7 @@
             <view style="font-size:12px;color:{{item.is_public ? '#8CB88A' : '#B0A090'}};margin-bottom:4px">
               {{item.is_public ? '✨ 已公开' : '🔒 未公开'}}
             </view>
-            <text class="text-sm" catchtap="deleteDream" data-id="{{item.id}}" style="color:#D4A0A0">🗑️ 删除</text>
+            <text class="text-sm" catchtap="deleteDream" data-id="{{item.id}}">🗑️ 删除</text>
           </view>
         </view>
       </block>
@@ -68,7 +68,17 @@
   <block wx:else>
     <view class="empty-wrap">
       <text class="empty-icon">⭐</text>
-      <text class="empty-text">还没有收藏梦境<br/>去梦境大厅逛逛吧</text>
+      <text class="empty-text">还没有收藏<br/>去梦境大厅逛逛吧</text>
     </view>
   </block>
+</view>
+
+<!-- 编辑昵称弹窗 -->
+<view wx:if="{{showNameEdit}}" class="modal-mask" bindtap="closeNameEdit">
+  <view class="modal-box" catchtap="">
+    <view class="modal-title">修改昵称</view>
+    <input style="display:block;width:88%;margin:12px auto;padding:10px 14px;border:1px solid #EDE8E0;border-radius:12px;font-size:15px;text-align:center" 
+      placeholder="输入新昵称" value="{{editName}}" bindinput="onNameInput" maxlength="20" />
+    <button class="btn-primary" bindtap="saveNickname" style="display:inline-block;width:auto;padding:10px 28px;font-size:14px">保存</button>
+  </view>
 </view>
