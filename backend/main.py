@@ -605,25 +605,31 @@ async def image_proxy(dream_id: int):
         except:
             pass
     
-    # 占位图：柔和渐变 + 梦境文字
+    # 占位图：返回柔和小方块 PNG
     style_colors = {
-        "梦核": ("#D4C5E2", "#A89BC9"),
-        "怪核": ("#C5D5E2", "#8BA5C4"),
-        "童年梦境": ("#FAE8C8", "#F0D098"),
-        "治愈梦境": ("#C8E8D4", "#90C8A8"),
-        "赛博梦境": ("#C8D8F0", "#8090D0"),
+        "梦核": "#D4C5E2", "怪核": "#C5D5E2", "童年梦境": "#FAE8C8",
+        "治愈梦境": "#C8E8D4", "赛博梦境": "#C8D8F0",
     }
-    bg1, bg2 = style_colors.get(d["style"] if d else "梦核", ("#EDE8E0", "#D4C4A8"))
+    bg = style_colors.get(d["style"] if d else "梦核", "#EDE8E0")
+    import struct, zlib
+    r, g, b = int(bg[1:3], 16), int(bg[3:5], 16), int(bg[5:7], 16)
+    width, height = 300, 170
+    raw = b''
+    for y in range(height):
+        raw += b'\x00'  # filter none
+        for x in range(width):
+            raw += bytes([r, g, b, 255])
     
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="600" height="340">
-      <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:{bg1}"/><stop offset="100%" style="stop-color:{bg2}"/>
-      </linearGradient></defs>
-      <rect width="600" height="340" fill="url(#g)" rx="16"/>
-      <text x="300" y="160" text-anchor="middle" font-size="64" fill="white" opacity="0.6">🌙</text>
-      <text x="300" y="210" text-anchor="middle" font-size="16" fill="white" opacity="0.5">梦境博物馆</text>
-    </svg>'''
-    return Response(content=svg.encode(), media_type="image/svg+xml")
+    def chunk(ct, data):
+        c = ct + data
+        return struct.pack('>I', len(data)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+    
+    png = b'\x89PNG\r\n\x1a\n'
+    png += chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0))
+    png += chunk(b'IDAT', zlib.compress(raw))
+    png += chunk(b'IEND', b'')
+    
+    return Response(content=png, media_type="image/png")
 
 # ---- 删除梦境 ----
 @app.post("/api/dream/delete")
