@@ -65,7 +65,7 @@ def init_db():
                 openid TEXT UNIQUE NOT NULL,
                 nickname TEXT DEFAULT '梦行者',
                 avatar TEXT DEFAULT '',
-                free_count INTEGER DEFAULT 1,
+                free_count INTEGER DEFAULT 3,
                 credit_count INTEGER DEFAULT 0,
                 last_free_reset TEXT DEFAULT (datetime('now')),
                 daily_ad_count INTEGER DEFAULT 0,
@@ -110,6 +110,10 @@ def init_db():
         """)
 
 init_db()
+
+# 迁移旧数据：所有用户免费次数改为3
+with db() as c:
+    c.execute("UPDATE user SET free_count = 3 WHERE free_count < 3")
 
 # ---- Rate Limiter ----
 _rate_map = {}
