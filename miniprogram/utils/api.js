@@ -14,7 +14,7 @@ function request(path, method, data) {
       },
       success(res) {
         if (res.statusCode === 200) {
-          resolve(res.data)
+          resolve(fixImageUrls(res.data))
         } else if (res.statusCode === 401) {
           wx.removeStorageSync('token')
           wx.showToast({ title: '请先登录', icon: 'none' })
@@ -29,6 +29,31 @@ function request(path, method, data) {
       }
     })
   })
+}
+
+// 图片走代理，解决域名白名单问题
+function fixImageUrls(obj) {
+  if (!obj || typeof obj !== 'object') return obj
+  if (Array.isArray(obj)) {
+    return obj.map(fixImageUrls)
+  }
+  const o = {}
+  for (const key of Object.keys(obj)) {
+    const val = obj[key]
+    if (key === 'image_url' && val && val.startsWith('http')) {
+      // 提取 dream id，替换为代理 URL
+      if (obj.id) {
+        o[key] = BASE + '/api/image/' + obj.id
+      } else {
+        o[key] = val
+      }
+    } else if (typeof val === 'object') {
+      o[key] = fixImageUrls(val)
+    } else {
+      o[key] = val
+    }
+  }
+  return o
 }
 
 module.exports = {

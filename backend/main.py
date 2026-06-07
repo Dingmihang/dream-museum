@@ -547,6 +547,28 @@ async def ad_callback(request: Request):
         u = dict(c.execute("SELECT * FROM user WHERE id=?", (uid,)).fetchone())
     return {"code": 200, "credit_count": u["credit_count"], "message": "获得1次梦境生成机会"}
 
+# ---- 图片代理（解决小程序域名白名单问题） ----
+@app.get("/api/image/{dream_id}")
+async def image_proxy(dream_id: int):
+    import aiohttp
+    with db() as c:
+        d = c.execute("SELECT image_url FROM dream WHERE id=?", (dream_id,)).fetchone()
+    if not d or not d["image_url"]:
+        # 返回占位图
+        return JSONResponse({"code": 404, "message": "图片不存在"}, status_code=404)
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(d["image_url"], timeout=15) as resp:
+                if resp.status == 200:
+                    content = await resp.read()
+                    ct = resp.headers.get("Content-Type", "image/png")
+                    from fastapi.responses import Response
+                    return Response(content=content, media_type=ct)
+    except:
+        pass
+    return JSONResponse({"code": 404, "message": "图片加载失败"}, status_code=404)
+
 # ---- 删除梦境 ----
 @app.post("/api/dream/delete")
 async def dream_delete(request: Request):
