@@ -29,6 +29,7 @@ if os.path.exists(_env_file):
 WECHAT_APPID = os.getenv("WECHAT_APPID", "wx683a3933492a97b1")
 WECHAT_SECRET = os.getenv("WECHAT_SECRET", "")
 REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN", "")
+SILICONFLOW_KEY = os.getenv("SILICONFLOW_KEY", "sk-elm...zzma")
 DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 JWT_SECRET = os.getenv("JWT_SECRET", secrets.token_hex(32))
 DAILY_FREE = 1          # 每日免费次数
@@ -322,41 +323,34 @@ async def dream_create(req: CreateDreamReq, request: Request):
         }
     }
 
-async def generate_image(prompt: str, negative: str) -> str:
-    import aiohttp
-    url = "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions"
-    headers = {"Authorization": f"Token {REPLICATE_TOKEN}", "Content-Type": "application/json"}
-    body = {
-        "input": {
-            "prompt": prompt,
-            "negative_prompt": negative,
-            "num_outputs": 1,
-            "aspect_ratio": "16:9",
-            "output_format": "webp",
-            "output_quality": 80
-        }
-    }
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, json=body, headers=headers, timeout=60) as resp:
-            data = await resp.json()
-        pred_id = data.get("id")
-        if not pred_id:
-            return ""
+# 图片生成 - 硅基流动 (SiliconFlow)
+IMAGE_MODEL = os.getenv("IMAGE_MODEL", "Tongyi-MAI/Z-Image-Turbo")
 
-        # 轮询等待
-        get_url = f"https://api.replicate.com/v1/predictions/{pred_id}"
-        for _ in range(30):
-            await asyncio_sleep(2)
-            async with session.get(get_url, headers=headers) as resp:
+async def generate_image(prompt: str, negative: str) -> str:
+    """生成梦境图片，返回图片 URL 或空字符串"""
+    import aiohttp
+    url = "https://api.siliconflow.cn/v1/images/generations"
+    headers = {
+        "Authorization": f"Bearer {SILICONFLOW_KEY}",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "model": IMAGE_MODEL,
+        "prompt": prompt,
+        "negative_prompt": negative,
+        "image_size": "1024x576",
+        "num_images": 1,
+    }
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=body, headers=headers, timeout=60) as resp:
                 data = await resp.json()
-            if data.get("status") == "succeeded":
-                output = data.get("output", [])
-                if isinstance(output, list) and output:
-                    return output[0]
-                return str(output) if output else ""
-            if data.get("status") == "failed":
-                return ""
-    return ""
+        images = data.get("images", [])
+        if images:
+            return images[0].get("url", "")
+        return ""
+    except Exception:
+        return ""
 
 # ---- 异步 sleep helper ----
 import asyncio
