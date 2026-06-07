@@ -1,6 +1,9 @@
 <!-- 梦境详情 — 温暖治愈风 -->
 <block wx:if="{{dream}}">
-  <image class="detail-image" src="{{dream.image_url}}" mode="widthFix" />
+  <!-- 正常图片 -->
+  <image wx:if="{{!imageFailed}}" class="detail-image" src="{{dream.image_url}}" mode="widthFix" binderror="onImageError" />
+  <!-- 图片加载失败占位 -->
+  <view wx:else class="detail-image-placeholder"></view>
 
   <view class="detail-info">
     <view class="detail-title">{{dream.dream_title}}</view>

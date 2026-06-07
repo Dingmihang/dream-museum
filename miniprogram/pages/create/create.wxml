@@ -39,7 +39,10 @@
 
 <block wx:else>
   <view class="generate-result">
-    <image class="generate-image" src="{{result.image_url}}" mode="widthFix" />
+    <!-- 生成结果图片，加载失败显示占位 -->
+    <image wx:if="{{!resultImgFailed}}" class="generate-image" src="{{result.image_url}}" mode="widthFix" binderror="onResultImageError" />
+    <view wx:else class="generate-image-placeholder"></view>
+    
     <view class="generate-title">{{result.dream_title}}</view>
     <view class="generate-tags">
       <block wx:for="{{result.dream_tags}}" wx:key="*this" wx:for-item="tag">
@@ -48,7 +51,12 @@
     </view>
     <view class="generate-analysis">{{result.dream_analysis}}</view>
 
-    <view class="result-actions">
+    <view wx:if="{{genFailed}}" style="text-align:center;padding:12px 20px">
+      <text class="text-sm" style="color:#B08070">生成失败，请检查网络后重试</text>
+      <button class="btn-outline" bindtap="regenerate" style="display:inline-block;width:auto;margin:12px 8px">🔄 再试一次</button>
+    </view>
+
+    <view wx:else class="result-actions">
       <button class="btn-primary" bindtap="publish" style="display:inline-block;width:auto;margin:6px 8px;font-size:15px;padding:12px 32px">📤 公开发布</button>
       <button class="btn-outline" bindtap="regenerate" style="display:inline-block;width:auto;margin:6px 8px">🔄 再做一个</button>
     </view>

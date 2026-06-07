@@ -1,7 +1,7 @@
 <!-- 我的 — 可编辑头像和昵称 -->
 <view class="profile-header">
   <button class="profile-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-    <image class="profile-avatar" src="{{user.avatar || '/assets/default-avatar.png'}}" mode="aspectFill" />
+    <image class="profile-avatar" src="{{user.avatar || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='}}" mode="aspectFill" />
   </button>
   <view style="text-align:center;margin-top:10px">
     <input class="nickname-input" type="nickname" placeholder="点击设置昵称" value="{{editName}}" bindinput="onNameInput" bindblur="saveNickname" maxlength="20" />
@@ -30,7 +30,8 @@
     <view style="text-align:center;padding:12px 8px 40px">
       <block wx:for="{{dreams}}" wx:key="id">
         <view class="dream-card" bindtap="goDetail" data-id="{{item.id}}">
-          <image class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" />
+          <image wx:if="{{!imgFailed_[item.id]}}" class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" binderror="onImageError" data-id="{{item.id}}" />
+          <view wx:else class="dream-card-image dream-card-placeholder"></view>
           <view class="dream-card-body">
             <view class="dream-card-title">{{item.dream_title}}</view>
             <view style="font-size:12px;color:{{item.is_public ? '#8CB88A' : '#B0A090'}};margin-bottom:4px">
@@ -56,7 +57,8 @@
     <view style="text-align:center;padding:12px 8px 40px">
       <block wx:for="{{favs}}" wx:key="id">
         <view class="dream-card" bindtap="goDetail" data-id="{{item.id}}">
-          <image class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" />
+          <image wx:if="{{!imgFailed_[item.id]}}" class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" binderror="onImageError" data-id="{{item.id}}" />
+          <view wx:else class="dream-card-image dream-card-placeholder"></view>
           <view class="dream-card-body">
             <view class="dream-card-title">{{item.dream_title}}</view>
             <view class="dream-card-footer">{{item.nickname || '梦行者'}} · ❤️ {{item.like_count || 0}}</view>

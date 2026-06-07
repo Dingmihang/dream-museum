@@ -3,29 +3,36 @@ const api = require('../../utils/api')
 Page({
   data: {
     dreams: [],
-    allDreams: [],  // store all dreams for shuffling
+    allDreams: [],
     page: 1,
     hasMore: true,
-    loading: true,
+    loading: false,
     keyword: '',
-    nickname: ''
+    nickname: '',
+    // 记录图片加载失败的 dream id，用于显示占位
+    failedImages: {}
   },
 
   onLoad() {
-    this.loadDreams()
-    this.loadProfile()
+    // 延迟数据加载到页面渲染完成后，避免 "Expected updated data but get first rendering data"
+    wx.nextTick(() => {
+      this.loadDreams()
+      this.loadProfile()
+    })
   },
 
   onShow() {
+    // 进入前台时刷新昵称
     this.loadProfile()
+    // 如果页面从其他页面返回且是第一页，刷新列表
     if (this.data.page === 1 && this.data.dreams.length > 0) {
-      this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true })
+      this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true, failedImages: {} })
       this.loadDreams()
     }
   },
 
   onPullDownRefresh() {
-    this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true })
+    this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true, failedImages: {} })
     this.loadDreams()
   },
 
@@ -39,24 +46,24 @@ Page({
     if (!this.data.hasMore) return
     this.setData({ loading: true })
 
-    // Load all available pages for shuffling
     api.getDreamList(1, this.data.keyword).then(res => {
-      const all = res.data.map(d => ({
+      const all = (res.data || []).map(d => ({
         ...d,
         dream_tags: typeof d.dream_tags === 'string' ? JSON.parse(d.dream_tags || '[]') : (d.dream_tags || [])
       }))
-      
-      // Shuffle for variety
+
+      // 随机打乱展示
       const shuffled = this._shuffle([...all])
-      
+
       this.setData({
         dreams: shuffled,
         allDreams: all,
-        hasMore: false,  // single page is enough
+        hasMore: false,
         loading: false
       })
       wx.stopPullDownRefresh && wx.stopPullDownRefresh()
-    }).catch(() => {
+    }).catch(err => {
+      // 已经有 toast 提示，不再重复
       this.setData({ loading: false })
       wx.stopPullDownRefresh && wx.stopPullDownRefresh()
     })
@@ -72,7 +79,6 @@ Page({
   },
 
   loadMore() {
-    // Reshuffle on load more
     const reshuffled = this._shuffle([...this.data.allDreams])
     this.setData({ dreams: reshuffled })
   },
@@ -82,22 +88,33 @@ Page({
   },
 
   doSearch() {
-    this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true })
+    this.setData({ page: 1, dreams: [], allDreams: [], hasMore: true, failedImages: {} })
     this.loadDreams()
+  },
+
+  // 图片加载失败时用占位色块
+  onImageError(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    const key = 'failedImages.' + id
+    this.setData({ [key]: true })
   },
 
   onLike(e) {
     const id = e.currentTarget.dataset.id
+    if (!id) return
     api.likeDream(id).then(res => {
       const dreams = this.data.dreams.map(d => {
         if (d.id === id) d.like_count = res.like_count
         return d
       })
       this.setData({ dreams })
-    })
+    }).catch(() => {})
   },
 
   goDetail(e) {
-    wx.navigateTo({ url: '/pages/detail/detail?id=' + e.currentTarget.dataset.id })
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
   }
 })

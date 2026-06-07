@@ -18,9 +18,16 @@ Page({
 
   loadProfile() {
     api.getUserProfile().then(res => {
+      const u = res.user || {}
       this.setData({ 
-        user: res.user, 
-        editName: res.user.nickname || '' 
+        user: {
+          free_count: u.free_count || 0,
+          credit_count: u.credit_count || 0,
+          daily_free: u.daily_free || 3,
+          nickname: u.nickname || '梦行者',
+          avatar: u.avatar || ''
+        },
+        editName: u.nickname || ''
       })
     }).catch(() => {})
   },
@@ -46,15 +53,25 @@ Page({
     this.setData({ tab: e.currentTarget.dataset.tab })
     if (e.currentTarget.dataset.tab === 'favs') {
       api.getUserFavorites(1).then(res => {
-        this.setData({ favs: res.data || [] })
-      })
+        this.setData({ favs: (res.data || []).map(d => ({
+          ...d,
+          dream_tags: typeof d.dream_tags === 'string' ? JSON.parse(d.dream_tags || '[]') : (d.dream_tags || [])
+        })) })
+      }).catch(() => {})
     }
+  },
+
+  // 图片加载失败处理
+  onImageError(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    const key = 'imgFailed_' + id
+    this.setData({ [key]: true })
   },
 
   // 头像选择
   onChooseAvatar(e) {
     const avatarUrl = e.detail.avatarUrl
-    // 微信头像地址是临时路径，直接使用即可
     this.setData({ 'user.avatar': avatarUrl })
     api.updateProfile('', avatarUrl).then(() => {
       wx.showToast({ title: '头像已更新', icon: 'success' })
@@ -77,7 +94,7 @@ Page({
           showNameEdit: false
         })
         wx.showToast({ title: '昵称已更新', icon: 'success' })
-      })
+      }).catch(() => {})
     } else {
       this.setData({ showNameEdit: false })
     }
@@ -96,7 +113,7 @@ Page({
           api.adCallback().then(res => {
             wx.showToast({ title: '获得1次机会', icon: 'success' })
             this.loadProfile()
-          })
+          }).catch(() => {})
         }
       }
     })
@@ -111,14 +128,16 @@ Page({
           api.deleteDream(e.currentTarget.dataset.id).then(() => {
             wx.showToast({ title: '已删除', icon: 'success' })
             this.loadDreams()
-          })
+          }).catch(() => {})
         }
       }
     })
   },
 
   goDetail(e) {
-    wx.navigateTo({ url: '/pages/detail/detail?id=' + e.currentTarget.dataset.id })
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
   },
 
   logout() {

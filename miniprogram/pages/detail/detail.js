@@ -6,17 +6,22 @@ Page({
     dream_tags: [],
     isLiked: false,
     isFaved: false,
-    loading: true
+    loading: true,
+    imageFailed: false
   },
 
   onLoad(options) {
     if (options.id) {
-      this.loadDetail(options.id)
+      wx.nextTick(() => {
+        this.loadDetail(options.id)
+      })
+    } else {
+      this.setData({ loading: false })
     }
   },
 
   loadDetail(id) {
-    this.setData({ loading: true })
+    this.setData({ loading: true, imageFailed: false })
     api.getDreamDetail(id).then(res => {
       const dream = res.data
       this.setData({
@@ -32,27 +37,34 @@ Page({
     })
   },
 
+  onImageError() {
+    this.setData({ imageFailed: true })
+  },
+
   onLike() {
+    if (!this.data.dream) return
     api.likeDream(this.data.dream.id).then(res => {
       this.setData({
         isLiked: res.liked,
         'dream.like_count': res.like_count
       })
-    })
+    }).catch(() => {})
   },
 
   onFav() {
+    if (!this.data.dream) return
     api.favDream(this.data.dream.id).then(res => {
       this.setData({ isFaved: res.faved })
       wx.showToast({ title: res.faved ? '已收藏' : '已取消', icon: 'none' })
-    })
+    }).catch(() => {})
   },
 
   onShareAppMessage() {
+    if (!this.data.dream) return {}
     return {
-      title: this.data.dream ? this.data.dream.dream_title : '梦境博物馆',
+      title: this.data.dream.dream_title || '梦境博物馆',
       path: '/pages/detail/detail?id=' + this.data.dream.id,
-      imageUrl: this.data.dream ? this.data.dream.image_url : ''
+      imageUrl: this.data.dream.image_url || ''
     }
   }
 })

@@ -1,5 +1,6 @@
 // 梦境博物馆 - API 封装
 const BASE = 'https://dream-museum.onrender.com'
+const REQ_TIMEOUT = 60000 // 60s 超时（Render 冷启动需要 15-30s）
 
 function request(path, method, data) {
   return new Promise((resolve, reject) => {
@@ -8,6 +9,7 @@ function request(path, method, data) {
       url: BASE + path,
       method: method,
       data: data,
+      timeout: REQ_TIMEOUT,
       header: {
         'Content-Type': 'application/json',
         'Authorization': token ? 'Bearer ' + token : ''
@@ -24,14 +26,19 @@ function request(path, method, data) {
         }
       },
       fail(err) {
-        wx.showToast({ title: '网络异常', icon: 'none' })
+        // 区分超时和网络问题
+        if (err.errMsg && err.errMsg.indexOf('timeout') > -1) {
+          wx.showToast({ title: '连接超时，请稍后重试', icon: 'none' })
+        } else {
+          wx.showToast({ title: '网络异常，请检查网络', icon: 'none' })
+        }
         reject(err)
       }
     })
   })
 }
 
-// 图片走代理，解决域名白名单问题
+// 图片 URL 处理 — 优先保留原始 URL，空时走代理兜底
 function fixImageUrls(obj) {
   if (!obj || typeof obj !== 'object') return obj
   if (Array.isArray(obj)) {
@@ -40,14 +47,19 @@ function fixImageUrls(obj) {
   const o = {}
   for (const key of Object.keys(obj)) {
     const val = obj[key]
-    if (key === 'image_url' && obj.id) {
-      // 所有图片统一走代理（含空URL，代理会返回占位图）
-      if (!val || val.startsWith('http')) {
+
+    if (key === 'image_url') {
+      if (val && typeof val === 'string' && val.trim() !== '') {
+        // 后端有返回有效图片 URL — 直接使用，不走代理
+        o[key] = val
+      } else if (obj.id) {
+        // image_url 为空但有 id — 走代理兜底
         o[key] = BASE + '/api/image/' + obj.id
       } else {
-        o[key] = val  // 已是代理 URL，不改
+        // 什么都没有 — 空字符串，前端 fallback 处理
+        o[key] = ''
       }
-    } else if (typeof val === 'object') {
+    } else if (typeof val === 'object' && val !== null) {
       o[key] = fixImageUrls(val)
     } else {
       o[key] = val
