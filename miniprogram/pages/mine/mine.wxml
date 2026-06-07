@@ -75,7 +75,7 @@
 
 <!-- 编辑昵称弹窗 -->
 <view wx:if="{{showNameEdit}}" class="modal-mask" bindtap="closeNameEdit">
-  <view class="modal-box" catchtap="">
+  <view class="modal-box">
     <view class="modal-title">修改昵称</view>
     <input style="display:block;width:88%;margin:12px auto;padding:10px 14px;border:1px solid #EDE8E0;border-radius:12px;font-size:15px;text-align:center" 
       placeholder="输入新昵称" value="{{editName}}" bindinput="onNameInput" maxlength="20" />

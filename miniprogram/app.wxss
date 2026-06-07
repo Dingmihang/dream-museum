@@ -14,7 +14,6 @@ page {
   color: #3A3A3A;
   text-align: center;
   padding: 24px 0 12px;
-  letter-spacing: 2px;
 }
 .title-md {
   font-size: 16px;
@@ -48,7 +47,6 @@ page {
   margin: 8px auto;
   box-shadow: 0 2px 12px rgba(200, 162, 122, 0.25);
   border: none;
-  letter-spacing: 1px;
 }
 .btn-outline {
   display: inline-block;
@@ -140,7 +138,6 @@ page {
   font-size: 20px;
   color: #3A3A3A;
   font-weight: 600;
-  letter-spacing: 2px;
 }
 .hall-subtitle {
   font-size: 13px;
@@ -183,13 +180,6 @@ page {
   background: #D4C4A8;
   border-radius: 50%;
   margin: 0 4px;
-  animation: dotBounce 1.2s infinite ease-in-out;
-}
-.loading-dot:nth-child(2) { animation-delay: 0.2s; }
-.loading-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dotBounce {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
-  40% { transform: translateY(-8px); opacity: 1; }
 }
 .loading-text {
   font-size: 14px;
@@ -287,7 +277,6 @@ page {
   height: 100%;
   background: #C8A27A;
   border-radius: 2px;
-  transition: width 0.5s ease;
 }
 .progress-text {
   font-size: 15px;
@@ -312,7 +301,6 @@ page {
   text-align: center;
   margin: 20px 0 8px;
   font-weight: 600;
-  letter-spacing: 2px;
 }
 .generate-tags {
   text-align: center;
@@ -349,7 +337,6 @@ page {
   color: #3A3A3A;
   font-weight: 600;
   margin-bottom: 6px;
-  letter-spacing: 1px;
 }
 .detail-meta {
   font-size: 13px;
