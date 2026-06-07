@@ -185,8 +185,7 @@ with db() as c:
                 c.execute("""INSERT INTO dream (user_id, prompt, style, dream_title, dream_analysis, dream_tags, image_url, is_public)
                              VALUES (?,?,?,?,?,?,?,?)""",
                           (uid, title, style, title, analysis, tags_str, "", 1))
-        # 种子梦境直接用代理 URL，不走前端 fixImageUrls
-        c.execute("UPDATE dream SET image_url = 'https://dream-museum.onrender.com/api/image/' || id WHERE image_url = '' AND is_public = 1")
+        # 种子梦境 image_url 留空，图片代理自动返回占位 PNG
 
 # ---- Rate Limiter ----
 _rate_map = {}
