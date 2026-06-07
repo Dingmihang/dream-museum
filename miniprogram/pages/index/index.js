@@ -6,14 +6,17 @@ Page({
     page: 1,
     hasMore: true,
     loading: true,
-    keyword: ''
+    keyword: '',
+    nickname: ''
   },
 
   onLoad() {
     this.loadDreams()
+    this.loadProfile()
   },
 
   onShow() {
+    this.loadProfile()
     // 从创造页返回时刷新
     if (this.data.page === 1 && this.data.dreams.length > 0) {
       this.setData({ page: 1, dreams: [], hasMore: true })
@@ -25,6 +28,12 @@ Page({
     this.setData({ page: 1, dreams: [], hasMore: true })
     this.loadDreams()
     wx.stopPullDownRefresh()
+  },
+
+  loadProfile() {
+    api.getUserProfile().then(res => {
+      this.setData({ nickname: res.user.nickname || '' })
+    }).catch(() => {})
   },
 
   loadDreams() {

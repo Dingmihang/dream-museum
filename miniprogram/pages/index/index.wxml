@@ -5,6 +5,10 @@
   <text class="hall-subtitle">每一场梦，都值得被珍藏</text>
 </view>
 
+<view style="text-align:center;padding:0 24px 8px">
+  <text class="text-sm" wx:if="{{nickname}}">👋 {{nickname}}，欢迎回来</text>
+</view>
+
 <view class="search-wrap">
   <view class="search-box">
     <input class="search-input" placeholder="🔍 搜索梦境..." value="{{keyword}}" bindinput="onSearch" bindconfirm="doSearch" />
