@@ -151,6 +151,8 @@ with db() as c:
                 c.execute("""INSERT INTO dream (user_id, prompt, style, dream_title, dream_analysis, dream_tags, image_url, is_public)
                              VALUES (?,?,?,?,?,?,?,?)""",
                           (uid, title, style, title, analysis, tags_str, "", 1))
+        # 种子梦境直接用代理 URL，不走前端 fixImageUrls
+        c.execute("UPDATE dream SET image_url = 'https://dream-museum.onrender.com/api/image/' || id WHERE image_url = '' AND is_public = 1")
 
 # ---- Rate Limiter ----
 _rate_map = {}
@@ -603,8 +605,7 @@ async def image_proxy(dream_id: int):
                 async with session.get(d["image_url"], timeout=15) as resp:
                     if resp.status == 200:
                         content = await resp.read()
-                        ct = resp.headers.get("Content-Type", "image/png")
-                        return Response(content=content, media_type=ct)
+                        return Response(content=content, media_type="image/png")
         except:
             pass
     
