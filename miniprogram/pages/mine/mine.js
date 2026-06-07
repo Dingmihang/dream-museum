@@ -119,5 +119,18 @@ Page({
 
   goDetail(e) {
     wx.navigateTo({ url: '/pages/detail/detail?id=' + e.currentTarget.dataset.id })
+  },
+
+  logout() {
+    wx.showModal({
+      title: '退出登录',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          const app = getApp()
+          app.logout()
+        }
+      }
+    })
   }
 })

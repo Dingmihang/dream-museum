@@ -73,6 +73,11 @@
   </block>
 </view>
 
+<!-- 退出登录 -->
+<view style="text-align:center;padding:32px 0 40px">
+  <text style="color:#C0C0C0;font-size:14px" bindtap="logout">退出登录</text>
+</view>
+
 <!-- 编辑昵称弹窗 -->
 <view wx:if="{{showNameEdit}}" class="modal-mask" bindtap="closeNameEdit">
   <view class="modal-box">

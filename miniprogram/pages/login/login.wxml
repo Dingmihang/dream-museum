@@ -1,0 +1,23 @@
+<!-- 登录页 -->
+<view class="login-wrap">
+  <view class="login-card">
+    <text class="login-icon">🌙</text>
+    <text class="login-title">梦境博物馆</text>
+    <text class="login-desc">记录每一场梦</text>
+    
+    <view style="margin-top:48px"></view>
+
+    <button class="login-btn" bindtap="doLogin" loading="{{loading}}">
+      <text wx:if="{{!loading}}">微信一键登录</text>
+      <text wx:else>登录中...</text>
+    </button>
+
+    <view style="margin-top:32px">
+      <text class="text-sm" wx:if="{{errorMsg}}">{{errorMsg}}</text>
+    </view>
+  </view>
+
+  <view class="login-footer">
+    <text class="text-sm">登录即表示同意用户协议</text>
+  </view>
+</view>

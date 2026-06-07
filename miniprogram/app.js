@@ -1,25 +1,21 @@
 // 梦境博物馆
 App({
   onLaunch() {
-    this.autoLogin()
+    this.checkLogin()
   },
 
-  autoLogin() {
+  checkLogin() {
     const token = wx.getStorageSync('token')
-    if (token) return
-    wx.login({
-      success: (res) => {
-        if (res.code) {
-          const api = require('./utils/api')
-          api.login(res.code).then(data => {
-            if (data.token) {
-              wx.setStorageSync('token', data.token)
-              wx.setStorageSync('uid', data.user_id)
-            }
-          }).catch(() => {})
-        }
-      }
-    })
+    if (!token) {
+      // 未登录，跳转登录页
+      wx.reLaunch({ url: '/pages/login/login' })
+    }
+  },
+
+  logout() {
+    wx.removeStorageSync('token')
+    wx.removeStorageSync('uid')
+    wx.reLaunch({ url: '/pages/login/login' })
   },
 
   globalData: {
