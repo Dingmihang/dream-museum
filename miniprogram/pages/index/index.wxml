@@ -1,22 +1,29 @@
-<!-- 梦境大厅 - 瀑布流 -->
-<view class="search-bar">
-  <input class="search-input" placeholder="搜索梦境关键词..." value="{{keyword}}" bindinput="onSearch" bindconfirm="doSearch" />
+<!-- 梦境大厅 — 温暖治愈风 -->
+<view class="hall-header">
+  <text class="hall-icon">🌙</text>
+  <text class="hall-title">梦境博物馆</text>
+  <text class="hall-subtitle">每一场梦，都值得被珍藏</text>
+</view>
+
+<view class="search-wrap">
+  <view class="search-box">
+    <input class="search-input" placeholder="🔍 搜索梦境..." value="{{keyword}}" bindinput="onSearch" bindconfirm="doSearch" />
+  </view>
 </view>
 
 <block wx:if="{{dreams.length > 0}}">
-  <view style="text-align:center;padding:16px">
+  <view style="text-align:center;padding:0 8px 24px">
     <block wx:for="{{dreams}}" wx:key="id">
       <view class="dream-card" bindtap="goDetail" data-id="{{item.id}}">
         <image class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" lazy-load />
-        <view class="dream-card-title">{{item.dream_title}}</view>
-        <view class="dream-card-tags">
-          <block wx:for="{{item.dream_tags}}" wx:key="*this" wx:for-item="tag">
-            <text class="dream-card-tag">{{tag}}</text>
-          </block>
-        </view>
-        <view class="dream-card-footer">
-          <text class="dream-card-author">{{item.nickname || '梦行者'}}</text>
-          <text class="dream-card-like" catchtap="onLike" data-id="{{item.id}}">❤️ {{item.like_count}}</text>
+        <view class="dream-card-body">
+          <view class="dream-card-title">{{item.dream_title}}</view>
+          <view class="dream-card-tags">
+            <block wx:for="{{item.dream_tags}}" wx:key="*this" wx:for-item="tag" wx:for-index="ti">
+              <text wx:if="{{ti < 3}}" class="dream-card-tag">{{tag}}</text>
+            </block>
+          </view>
+          <view class="dream-card-footer">{{item.nickname || '梦行者'}} · ❤️ {{item.like_count || 0}}</view>
         </view>
       </view>
     </block>
@@ -24,13 +31,27 @@
 </block>
 
 <block wx:elif="{{loading}}">
-  <view class="loading-wrap"><text class="loading-text">梦境加载中...</text></view>
+  <view class="loading-wrap">
+    <view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+    <view class="loading-text">梦境加载中...</view>
+  </view>
 </block>
 
 <block wx:else>
-  <view class="empty-wrap"><text class="empty-text">🌙 还没有公开的梦境<br/>去创造一个吧</text></view>
+  <view class="empty-wrap">
+    <text class="empty-icon">🌙</text>
+    <text class="empty-text">还没有公开的梦境<br/>去创造一个吧 ✨</text>
+  </view>
 </block>
 
-<view wx:if="{{hasMore}}" style="text-align:center;padding:16px">
+<view wx:if="{{hasMore}}" style="text-align:center;padding:16px 0 40px">
   <text class="btn-outline" bindtap="loadMore">加载更多</text>
+</view>
+
+<view wx:else style="text-align:center;padding:8px 0 40px">
+  <text style="font-size:12px;color:#D4C4A8">— 已经到底啦 —</text>
 </view>

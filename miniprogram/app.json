@@ -7,15 +7,15 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#0a0a1a",
+    "navigationBarBackgroundColor": "#FFF9F0",
     "navigationBarTitleText": "梦境博物馆",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "color": "#666680",
-    "selectedColor": "#8b7cfc",
-    "backgroundColor": "#0f0f24",
-    "borderStyle": "black",
+    "color": "#B5A898",
+    "selectedColor": "#C8A27A",
+    "backgroundColor": "#FFF9F0",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",

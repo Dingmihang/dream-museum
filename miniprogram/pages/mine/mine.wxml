@@ -1,4 +1,4 @@
-<!-- 我的 -->
+<!-- 我的 — 温暖治愈风 -->
 <view class="profile-header">
   <image class="profile-avatar" src="{{user.avatar || '/assets/default-avatar.png'}}" mode="aspectFill" />
   <view class="profile-name">{{user.nickname || '梦行者'}}</view>
@@ -15,55 +15,60 @@
   </view>
 </view>
 
-<view style="text-align:center;padding:8px">
-  <button class="btn-ad" bindtap="watchAd" style="font-size:14px;padding:8px 20px">📺 观看广告 +1 次数</button>
+<view style="text-align:center;padding:4px 0 12px">
+  <button class="btn-ad" bindtap="watchAd" style="display:inline-block;width:auto;font-size:14px;padding:8px 20px">📺 观看广告 +1 次数</button>
 </view>
 
-<view class="divider"></view>
-
-<!-- Tab 切换 -->
-<view style="text-align:center;border-bottom:1px solid #1e1e3a;padding:8px">
-  <text class="btn-outline {{tab==='dreams'?'liked':''}}" bindtap="switchTab" data-tab="dreams" style="margin:0 4px">我的梦境</text>
-  <text class="btn-outline {{tab==='favs'?'faved':''}}" bindtap="switchTab" data-tab="favs" style="margin:0 4px">我的收藏</text>
+<view class="tab-row">
+  <text class="tab-btn {{tab==='dreams'?'on':''}}" bindtap="switchTab" data-tab="dreams">我的梦境</text>
+  <text class="tab-btn {{tab==='favs'?'on':''}}" bindtap="switchTab" data-tab="favs">我的收藏</text>
 </view>
 
 <!-- 我的梦境 -->
 <view wx:if="{{tab === 'dreams'}}">
   <block wx:if="{{dreams.length > 0}}">
-    <view style="text-align:center;padding:16px">
+    <view style="text-align:center;padding:12px 8px 40px">
       <block wx:for="{{dreams}}" wx:key="id">
         <view class="dream-card" bindtap="goDetail" data-id="{{item.id}}">
           <image class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" />
-          <view class="dream-card-title">{{item.dream_title}}</view>
-          <view class="dream-card-footer">
-            <text class="dream-card-author" style="color:{{item.is_public ? '#6bcf6b' : '#606080'}}">
-              {{item.is_public ? '已公开' : '未公开'}}
-            </text>
-            <text class="dream-card-like" catchtap="deleteDream" data-id="{{item.id}}">🗑️</text>
+          <view class="dream-card-body">
+            <view class="dream-card-title">{{item.dream_title}}</view>
+            <view style="font-size:12px;color:{{item.is_public ? '#8CB88A' : '#B0A090'}};margin-bottom:4px">
+              {{item.is_public ? '✨ 已公开' : '🔒 未公开'}}
+            </view>
+            <text class="text-sm" catchtap="deleteDream" data-id="{{item.id}}" style="color:#D4A0A0">🗑️ 删除</text>
           </view>
         </view>
       </block>
     </view>
   </block>
   <block wx:else>
-    <view class="empty-wrap"><text class="empty-text">还没有梦境记录</text></view>
+    <view class="empty-wrap">
+      <text class="empty-icon">💭</text>
+      <text class="empty-text">还没有梦境记录<br/>去创作第一个梦吧</text>
+    </view>
   </block>
 </view>
 
 <!-- 我的收藏 -->
 <view wx:if="{{tab === 'favs'}}">
   <block wx:if="{{favs.length > 0}}">
-    <view style="text-align:center;padding:16px">
+    <view style="text-align:center;padding:12px 8px 40px">
       <block wx:for="{{favs}}" wx:key="id">
         <view class="dream-card" bindtap="goDetail" data-id="{{item.id}}">
           <image class="dream-card-image" src="{{item.image_url}}" mode="aspectFill" />
-          <view class="dream-card-title">{{item.dream_title}}</view>
-          <view class="dream-card-author">{{item.nickname || '梦行者'}}</view>
+          <view class="dream-card-body">
+            <view class="dream-card-title">{{item.dream_title}}</view>
+            <view class="dream-card-footer">{{item.nickname || '梦行者'}} · ❤️ {{item.like_count || 0}}</view>
+          </view>
         </view>
       </block>
     </view>
   </block>
   <block wx:else>
-    <view class="empty-wrap"><text class="empty-text">还没有收藏梦境</text></view>
+    <view class="empty-wrap">
+      <text class="empty-icon">⭐</text>
+      <text class="empty-text">还没有收藏梦境<br/>去梦境大厅逛逛吧</text>
+    </view>
   </block>
 </view>

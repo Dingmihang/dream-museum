@@ -9,7 +9,8 @@ Page({
     generated: false,
     result: null,
     showAdModal: false,
-    progressText: '正在解析梦境...',
+    progressText: '正在感知梦境...',
+    progressPct: 0,
     quota: { free_count: 0, credit_count: 0 }
   },
 
@@ -38,30 +39,41 @@ Page({
   generate() {
     if (!this.data.prompt.trim() || this.data.generating) return
 
-    this.setData({ generating: true, progressText: '正在解析梦境...' })
+    this.setData({ generating: true, progressText: '正在感知梦境...', progressPct: 10 })
 
-    // 模拟进度更新
-    const progressTimer = setInterval(() => {
-      const texts = ['正在解析梦境...', 'AI 正在生成标题...', '正在绘制梦境画面...', '即将完成...']
-      const idx = Math.floor(Math.random() * texts.length)
-      this.setData({ progressText: texts[idx] })
-    }, 2000)
+    const phases = [
+      { text: 'AI 正在解析文字...', pct: 35, delay: 1500 },
+      { text: '正在编织画面...', pct: 60, delay: 3000 },
+      { text: '即将完成...', pct: 85, delay: 5000 },
+    ]
+
+    const timers = phases.map(p => {
+      return setTimeout(() => {
+        if (this.data.generating) {
+          this.setData({ progressText: p.text, progressPct: p.pct })
+        }
+      }, p.delay)
+    })
 
     api.createDream(this.data.prompt, this.data.style, false).then(res => {
-      clearInterval(progressTimer)
-      if (res.code === 403) {
-        this.setData({ generating: false, showAdModal: true })
-        return
-      }
-      this.setData({
-        generating: false,
-        generated: true,
-        result: res.dream,
-        quota: res.quota
-      })
+      timers.forEach(clearTimeout)
+      this.setData({ progressPct: 100 })
+      setTimeout(() => {
+        if (res.code === 403) {
+          this.setData({ generating: false, showAdModal: true, progressPct: 0 })
+          return
+        }
+        this.setData({
+          generating: false,
+          generated: true,
+          result: res.dream,
+          quota: res.quota,
+          progressPct: 0
+        })
+      }, 300)
     }).catch(err => {
-      clearInterval(progressTimer)
-      this.setData({ generating: false })
+      timers.forEach(clearTimeout)
+      this.setData({ generating: false, progressPct: 0 })
       wx.showToast({ title: '生成失败，请重试', icon: 'none' })
     })
   },
@@ -70,8 +82,9 @@ Page({
     if (!this.data.result) return
     api.publishDream(this.data.result.id).then(() => {
       wx.showToast({ title: '已发布到梦境大厅', icon: 'success' })
-      // 切换到梦境大厅
-      wx.switchTab({ url: '/pages/index/index' })
+      setTimeout(() => {
+        wx.switchTab({ url: '/pages/index/index' })
+      }, 800)
     })
   },
 
@@ -85,7 +98,6 @@ Page({
 
   watchAd() {
     this.setData({ showAdModal: false })
-    // 微信激励视频广告
     wx.showModal({
       title: '观看广告',
       content: '完整观看广告后获得 1 次生成机会',

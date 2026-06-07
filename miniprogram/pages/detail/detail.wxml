@@ -1,35 +1,48 @@
-<!-- 梦境详情 -->
+<!-- 梦境详情 — 温暖治愈风 -->
 <block wx:if="{{dream}}">
   <image class="detail-image" src="{{dream.image_url}}" mode="widthFix" />
 
   <view class="detail-info">
     <view class="detail-title">{{dream.dream_title}}</view>
-    <view class="detail-author">{{dream.nickname || '梦行者'}} · {{dream.created_at}}</view>
+    <view class="detail-meta">{{dream.nickname || '梦行者'}} · {{dream.created_at}}</view>
 
-    <view class="generate-tags" style="text-align:left;padding:0">
+    <view style="padding:4px 0 12px">
       <block wx:for="{{dream_tags}}" wx:key="*this" wx:for-item="tag">
-        <text class="dream-card-tag">{{tag}}</text>
+        <text class="dream-card-tag" style="font-size:12px;padding:4px 12px;margin:4px 4px">{{tag}}</text>
       </block>
     </view>
 
     <view class="detail-analysis">{{dream.dream_analysis}}</view>
 
-    <view class="text-sm" style="margin-top:12px">
-      梦境原文：{{dream.prompt}}
+    <view class="detail-source">
+      <text>📝 {{dream.prompt}}</text>
     </view>
   </view>
 
   <view class="detail-actions">
-    <text class="action-btn {{isLiked ? 'liked' : ''}}" bindtap="onLike">❤️ {{dream.like_count}}</text>
-    <text class="action-btn {{isFaved ? 'faved' : ''}}" bindtap="onFav">⭐ 收藏</text>
-    <button class="btn-outline" open-type="share" style="display:inline-block;width:auto;margin:0 8px">📤 分享</button>
+    <text class="action-btn {{isLiked ? 'liked' : ''}}" bindtap="onLike">❤️ {{dream.like_count || 0}}</text>
+    <text class="action-btn {{isFaved ? 'faved' : ''}}" bindtap="onFav">⭐ {{isFaved ? '已收藏' : '收藏'}}</text>
+  </view>
+
+  <view style="text-align:center;padding:0 20px 40px">
+    <button class="btn-outline" open-type="share" style="display:inline-block;width:auto;padding:10px 32px">📤 分享这个梦境</button>
   </view>
 </block>
 
 <block wx:elif="{{loading}}">
-  <view class="loading-wrap"><text class="loading-text">加载中...</text></view>
+  <view class="loading-wrap">
+    <view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+      <view class="loading-dot"></view>
+    </view>
+    <view class="loading-text">加载中...</view>
+  </view>
 </block>
 
 <block wx:else>
-  <view class="empty-wrap"><text class="empty-text">梦境不存在</text></view>
+  <view class="empty-wrap">
+    <text class="empty-icon">🌙</text>
+    <text class="empty-text">梦境不存在</text>
+  </view>
 </block>
