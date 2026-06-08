@@ -49,7 +49,7 @@ function _doRequest(path, method, data) {
   })
 }
 
-// 图片 URL 处理 — 优先保留原始 URL，空时走代理兜底
+// 图片 URL 处理 — 外部图走代理，避免域名白名单问题
 function fixImageUrls(obj) {
   if (!obj || typeof obj !== 'object') return obj
   if (Array.isArray(obj)) {
@@ -61,13 +61,16 @@ function fixImageUrls(obj) {
 
     if (key === 'image_url') {
       if (val && typeof val === 'string' && val.trim() !== '') {
-        // 后端有返回有效图片 URL — 直接使用，不走代理
-        o[key] = val
+        // 外部图片 URL（s3.siliconflow.cn 等）统一走代理
+        if (val.startsWith('http') && val.indexOf(BASE) !== 0) {
+          o[key] = BASE + '/api/image/' + obj.id
+        } else {
+          o[key] = val
+        }
       } else if (obj.id) {
-        // image_url 为空但有 id — 走代理兜底
+        // 空 URL 走代理兜底（返回占位图）
         o[key] = BASE + '/api/image/' + obj.id
       } else {
-        // 什么都没有 — 空字符串，前端 fallback 处理
         o[key] = ''
       }
     } else if (typeof val === 'object' && val !== null) {
