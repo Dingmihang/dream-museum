@@ -3,6 +3,17 @@ const BASE = 'https://dream-museum.onrender.com'
 const REQ_TIMEOUT = 60000 // 60s 超时（Render 冷启动需要 15-30s）
 
 function request(path, method, data) {
+  return _doRequest(path, method, data).catch(err => {
+    // 超时重试一次（Render 冷启动）
+    if (err && (err.errMsg || '').indexOf('timeout') > -1) {
+      console.log('请求超时，重试中...')
+      return _doRequest(path, method, data)
+    }
+    return Promise.reject(err)
+  })
+}
+
+function _doRequest(path, method, data) {
   return new Promise((resolve, reject) => {
     const token = wx.getStorageSync('token') || ''
     wx.request({
