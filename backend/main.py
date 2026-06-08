@@ -638,7 +638,8 @@ async def image_proxy(dream_id: int):
                 async with session.get(d["image_url"], timeout=15) as resp:
                     if resp.status == 200:
                         content = await resp.read()
-                        return Response(content=content, media_type="image/png")
+                        return Response(content=content, media_type="image/png",
+                                       headers={"Content-Disposition": "inline; filename=image.png"})
         except:
             pass
     
@@ -666,7 +667,8 @@ async def image_proxy(dream_id: int):
     png += chunk(b'IDAT', zlib.compress(raw))
     png += chunk(b'IEND', b'')
     
-    return Response(content=png, media_type="image/png")
+    return Response(content=png, media_type="image/png",
+                   headers={"Content-Disposition": "inline; filename=image.png"})
 
 # ---- 删除梦境 ----
 @app.post("/api/dream/delete")
