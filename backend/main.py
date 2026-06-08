@@ -424,12 +424,12 @@ async def generate_image(prompt: str, negative: str) -> str:
         images = data.get("images", [])
         if images:
             return images[0].get("url", "")
-        import sys
-        print(f"[generate_image] no images in response: {json.dumps(data)[:200]}", file=sys.stderr)
+        # 返回错误信息方便排查
+        err = data.get("message", data.get("detail", str(data)[:100]))
+        print(f"[generate_image] no images: {err}", flush=True)
         return ""
     except Exception as e:
-        import sys
-        print(f"[generate_image] error: {e}", file=sys.stderr)
+        print(f"[generate_image] exception: {e}", flush=True)
         return ""
 
 # ---- 异步 sleep helper ----
