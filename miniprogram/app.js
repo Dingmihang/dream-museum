@@ -1,13 +1,23 @@
 // 梦境博物馆
 App({
   onLaunch() {
+    this.warmupBackend()
     this.checkLogin()
+  },
+
+  warmupBackend() {
+    const BASE = 'https://dream-museum.onrender.com'
+    wx.request({
+      url: BASE + '/health',
+      timeout: 30000,
+      success: () => console.log('后端已就绪'),
+      fail: () => console.log('后端预热中...')
+    })
   },
 
   checkLogin() {
     const token = wx.getStorageSync('token')
     if (!token) {
-      // 未登录，跳转登录页
       wx.reLaunch({ url: '/pages/login/login' })
     }
   },
