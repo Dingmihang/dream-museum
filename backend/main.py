@@ -344,7 +344,8 @@ async def dream_create(req: CreateDreamReq, request: Request):
 {{
   "dream_title": "10字以内的梦境标题",
   "dream_analysis": "80-120字的诗意梦境解析，从潜意识、情绪、象征角度分析",
-  "dream_tags": ["标签1","标签2","标签3","标签4"]
+  "dream_tags": ["标签1","标签2","标签3","标签4"],
+  "image_prompt": "英文画面描述，用于AI绘画生成。描述梦境的视觉场景、色调、氛围、构图。30-50个英文单词。"
 }}"""
 
     try:
@@ -359,11 +360,12 @@ async def dream_create(req: CreateDreamReq, request: Request):
         text_result = {
             "dream_title": req.prompt[:10] + "的梦",
             "dream_analysis": f"这是一个关于{req.prompt[:30]}的梦境，充满了潜意识的象征。",
-            "dream_tags": ["梦境", req.style, "潜意识", "象征"]
+            "dream_tags": ["梦境", req.style, "潜意识", "象征"],
+            "image_prompt": f"dreamcore aesthetic, soft focus, dreamy atmosphere, {req.prompt[:50]}"
         }
 
-    # Step 2: Replicate 图片生成
-    img_prompt = f"{BASE_IMAGE_PROMPT}, {style_prompt}, {text_result['dream_title']}, inspired by: {req.prompt[:80]}"
+    # Step 2: 图片生成 - 用 DeepSeek 生成的英文画面描述
+    img_prompt = text_result.get("image_prompt", f"{style_prompt}, {text_result['dream_title']}, {req.prompt[:80]}")
     image_url = await generate_image(img_prompt, NEGATIVE_PROMPT)
 
     # Step 3: 保存
